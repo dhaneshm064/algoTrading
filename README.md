@@ -7,20 +7,22 @@ You can take a look at StockInfoLoader for populating the db.
 
 Fetch Basic Info APIs
 
-![image](https://user-images.githubusercontent.com/33578985/112748710-32556880-8fdb-11eb-883b-85304cb224d5.png)
+
+![StockDetail](https://user-images.githubusercontent.com/33578985/112749019-3c786680-8fdd-11eb-810e-c3f3c3cd69a5.JPG)
 
 
-![image](https://user-images.githubusercontent.com/33578985/112748720-4c8f4680-8fdb-11eb-9241-be8db32da7f9.png)
+![StockDataList](https://user-images.githubusercontent.com/33578985/112749003-33879500-8fdd-11eb-8678-cf4ec9c369fd.JPG)
 
 
-Golden CrossOver Strategy:
+# Golden CrossOver Strategy:
 
 Have obtained an accuracy of over 60 and Average ROE per trade = 7.8 %
-Have given user the option to add trailing stoploss once target is hit and also increase the subsequent target.
+User can add a trailing stoploss once target is hit and also increase the subsequent target value once the target is hit by specifing the increase in target Percent.
 
 User can also enter amount to Invest for each trade.
 
 Buying Condition: When the Stock Crosses x day SMA 
+
 Selling Condition: When Stock Reaches y day SMA OR StopLoss Triggered OR Target Percent Achieved.
 
-![image](https://user-images.githubusercontent.com/33578985/112748803-f2db4c00-8fdb-11eb-96df-dbdd5bddb973.png)
+![GoldenCrossOver](https://user-images.githubusercontent.com/33578985/112748884-75640b80-8fdc-11eb-91d9-16bbba0d81f9.JPG)
