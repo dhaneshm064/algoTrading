@@ -31,7 +31,31 @@ public class Trade {
                 ", sellingDate=" + sellingDate +
                 ", quantity=" + quantity +
                 ", PnL=" + PnL +
+                ", ReturnOnEquity ="+ReturnOnEquity+
                 ", isTradeActive=" + isTradeActive +
                 '}';
     }
+     public String toCSVWrite() {
+        return   stockSymbol  +
+                 "," + buyingPrice +
+                 "," + buyingDate +
+                 "," + sellingPrice +
+                 "," + sellingDate +
+                 "," + quantity +
+                 "," + PnL +
+                 "," + ReturnOnEquity +
+                 "," + isTradeActive ;
+     }
+
+     public String getCSVHeader(){
+        return  "stockSymbol"+
+                ", buyingPrice"+
+                ", buyingDate" +
+                ", sellingPrice"  +
+                ", sellingDate" +
+                ", quantity" +
+                ", PnL" +
+                ", ReturnOnEquity"+
+                ", isTradeActive" ;
+     }
 }

@@ -3,6 +3,7 @@ package com.stockmarket.technicalanalysis.service;
 import com.stockmarket.technicalanalysis.constant.StockMarketConstants;
 import com.stockmarket.technicalanalysis.exception.TechnicalAnalysisException;
 import com.stockmarket.technicalanalysis.intf.InterfaceService;
+import com.stockmarket.technicalanalysis.util.FileUtil;
 import com.stockmarket.technicalanalysis.vo.StockBasicInfo;
 import com.stockmarket.technicalanalysis.vo.StockTechnicalInfo;
 import com.stockmarket.technicalanalysis.vo.Trade;
@@ -24,6 +25,8 @@ public class AlgoTradingService {
     @Autowired
     StockTechnicalInfoService stockTechnicalInfoService;
 
+    @Autowired
+    FileUtil fileUtil;
 
     public String goldenCrossOverStrategy(float perTradeAmount, int floorSMA, int ceilSMA, float stoplossPercent, float targetPercent, float trailingStopLoss, float increasingTarget) throws Exception {
         List<Trade> allTrades = new ArrayList<>();
@@ -36,7 +39,7 @@ public class AlgoTradingService {
             List<Trade> tradeList = applyGoldenCrossOverStrategy(stockTechnicalInfoMap, stockBasicInfos,perTradeAmount,floorSMA, ceilSMA, stoplossPercent, targetPercent, trailingStopLoss, increasingTarget);
             allTrades.addAll(tradeList);
         }
-
+            fileUtil.writeToFile(allTrades, "GoldenCrossOverStrategy.csv");
         return processAlgoStrategyOutput(allTrades);
 
     }
@@ -87,7 +90,7 @@ public class AlgoTradingService {
     }
 
 
-    private List<Trade> applyGoldenCrossOverStrategy(TreeMap<String, StockTechnicalInfo> stockTechnicalInfoMap, List<StockBasicInfo> stockBasicInfoList, float perTradeAmount, int timePeriod1, int timePeriod2,
+    private List<Trade> applyGoldenCrossOverStrategy(TreeMap<String, StockTechnicalInfo> stockTechnicalInfoMap, List<StockBasicInfo> stockBasicInfoList, float perTradeAmount, int buyCrossOver, int sellCrossOver,
                                                      float stoplossPercent, float targetPercent, float trailingStopLoss, float increasingTarget) {
 
         List<Trade> tradeList = new ArrayList<>();
@@ -104,9 +107,9 @@ public class AlgoTradingService {
 
             float prevClose = stockBasicInfo.getPrevClose();
             float closePrice = stockBasicInfo.getClose();
-            float SMA_50 = stockTechnicalInfo.getSimpleMovingAverage().get(timePeriod1);
-            float SMA_200 = stockTechnicalInfo.getSimpleMovingAverage().get(timePeriod2);
-            if(closePrice>SMA_50 && closePrice<SMA_200 && prevClose<SMA_50 && !trade.isTradeActive )
+            float SMA_Buy_CrossOver = stockTechnicalInfo.getSimpleMovingAverage().get(buyCrossOver);
+            float SMA_Sell_CrossOver = stockTechnicalInfo.getSimpleMovingAverage().get(sellCrossOver);
+            if(closePrice> SMA_Buy_CrossOver && closePrice< SMA_Sell_CrossOver && prevClose< SMA_Buy_CrossOver && !trade.isTradeActive )
             {
                 trade.setBuyingDate(date);
                 trade.setIsTradeActive(true);
@@ -126,23 +129,24 @@ public class AlgoTradingService {
                 if( closePrice < stopLoss)
                 {
 
-                    trade.setSellingDate(date);
-                    trade.setSellingPrice(closePrice);
+                    sellStock( trade, date, closePrice);
 
-                    float quantity = trade.getQuantity();
-                    float buyingPrice = trade.getBuyingPrice();
-                    trade.setPnL(closePrice*quantity - buyingPrice*quantity);
-                    trade.setIsTradeActive(false);
-                    float roe = (closePrice*quantity - buyingPrice*quantity)*100/(buyingPrice*quantity);
-                    trade.setReturnOnEquity(roe);
                     tradeList.add(trade);
-                    log.info(trade.toString());
                     trade = new Trade();
                     trade.setIsTradeActive(false);
                 }
-                if(closePrice > target){
+                if(closePrice > target /*|| (closePrice > SMA_Sell_CrossOver && prevClose < SMA_Sell_CrossOver)*/ ){
+/*                    if(trade.getTarget() > closePrice)
+                    {
+                        sellStock( trade, date, closePrice);
+                        tradeList.add(trade);
+                        trade = new Trade();
+                        trade.setIsTradeActive(false);
+                    }
+                    else{*/
                     trade.setTarget((float) (closePrice+0.01*increasingTarget*target));
                     trade.setStoploss((float) (closePrice - 0.01*trailingStopLoss*target));
+                /*}*/
                 }
 
             }
@@ -153,5 +157,20 @@ public class AlgoTradingService {
         }
         return tradeList;
     }
+
+    private void sellStock(Trade trade, Timestamp date, float closePrice) {
+        trade.setSellingDate(date);
+        trade.setSellingPrice(closePrice);
+
+        float quantity = trade.getQuantity();
+        float buyingPrice = trade.getBuyingPrice();
+        trade.setPnL(closePrice*quantity - buyingPrice*quantity);
+        trade.setIsTradeActive(false);
+        float roe = (closePrice*quantity - buyingPrice*quantity)*100/(buyingPrice*quantity);
+        trade.setReturnOnEquity(roe);
+        log.info(trade.toString());
+    }
+
+
 
 }

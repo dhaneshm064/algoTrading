@@ -1,9 +1,11 @@
 package com.stockmarket.technicalanalysis.service;
 
 import com.stockmarket.technicalanalysis.exception.TechnicalAnalysisException;
+import com.stockmarket.technicalanalysis.util.FileUtil;
 import com.stockmarket.technicalanalysis.vo.StockBasicInfo;
 import com.stockmarket.technicalanalysis.vo.StockTechnicalInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -12,6 +14,9 @@ import java.util.*;
 @Service
 @Slf4j
 public class StockTechnicalInfoService {
+
+    @Autowired
+    FileUtil fileUtil;
 
     public TreeMap<String,StockTechnicalInfo> calculateSMA(List<StockBasicInfo>  stockBasicInfoList, TreeMap<String,StockTechnicalInfo>  stockTechnicalInfoMap, int timePeriod) throws TechnicalAnalysisException {
         log.debug("In StockTechnicalInfoService.CalculateSMA() ");
